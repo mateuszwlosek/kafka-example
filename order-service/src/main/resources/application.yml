@@ -1,0 +1,20 @@
+server:
+  port: 6062
+
+spring:
+  application:
+    name: order-service
+  cloud:
+    stream:
+      kafka:
+        binder:
+          configuration:
+            security:
+              protocol: SSL
+          brokers:
+            - kafka1:29093
+            - kafka2:29096
+            - kafka3:29099
+      bindings:
+        boughtBook-in:
+          destination: boughtBook

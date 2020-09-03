@@ -1,0 +1,130 @@
+version: '2'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.5.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - '21181:21181'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 22181
+
+  kafka1:
+    image: confluentinc/cp-kafka:5.3.1
+    hostname: kafka1
+    container_name: kafka1
+    depends_on:
+      - zookeeper
+    ports:
+      - '29093:29093'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:22181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SSL:SSL
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:29092,SSL://kafka1:29093
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_SSL_KEYSTORE_FILENAME: 'kafka.keystore.jks'
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: 'keystore_creds'
+      KAFKA_SSL_KEY_CREDENTIALS: 'sslkey_creds'
+      KAFKA_SSL_TRUSTSTORE_FILENAME: 'kafka.truststore.jks'
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: 'truststore_creds'
+    volumes:
+      - ./certificates/kafka.keystore.jks:/etc/kafka/secrets/kafka.keystore.jks:ro,z
+      - ./certificates/kafka.truststore.jks:/etc/kafka/secrets/kafka.truststore.jks:ro,z
+      - ./certificates/keystore_creds:/etc/kafka/secrets/keystore_creds:ro,z
+      - ./certificates/sslkey_creds:/etc/kafka/secrets/sslkey_creds:ro,z
+      - ./certificates/truststore_creds:/etc/kafka/secrets/truststore_creds:ro,z
+
+  kafka2:
+    image: confluentinc/cp-kafka:5.3.1
+    hostname: kafka2
+    container_name: kafka2
+    depends_on:
+      - zookeeper
+    ports:
+      - '29096:29096'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:22181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SSL:SSL
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:29095,SSL://kafka2:29096
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_SSL_KEYSTORE_FILENAME: 'kafka.keystore.jks'
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: 'keystore_creds'
+      KAFKA_SSL_KEY_CREDENTIALS: 'sslkey_creds'
+      KAFKA_SSL_TRUSTSTORE_FILENAME: 'kafka.truststore.jks'
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: 'truststore_creds'
+    volumes:
+      - ./certificates/kafka.keystore.jks:/etc/kafka/secrets/kafka.keystore.jks:ro,z
+      - ./certificates/kafka.truststore.jks:/etc/kafka/secrets/kafka.truststore.jks:ro,z
+      - ./certificates/keystore_creds:/etc/kafka/secrets/keystore_creds:ro,z
+      - ./certificates/sslkey_creds:/etc/kafka/secrets/sslkey_creds:ro,z
+      - ./certificates/truststore_creds:/etc/kafka/secrets/truststore_creds:ro,z
+
+  kafka3:
+    image: confluentinc/cp-kafka:5.3.1
+    hostname: kafka3
+    container_name: kafka3
+    depends_on:
+      - zookeeper
+    ports:
+      - '29099:29099'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:22181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,SSL:SSL
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:29098,SSL://kafka3:29099
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_SSL_KEYSTORE_FILENAME: 'kafka.keystore.jks'
+      KAFKA_SSL_KEYSTORE_CREDENTIALS: 'keystore_creds'
+      KAFKA_SSL_KEY_CREDENTIALS: 'sslkey_creds'
+      KAFKA_SSL_TRUSTSTORE_FILENAME: 'kafka.truststore.jks'
+      KAFKA_SSL_TRUSTSTORE_CREDENTIALS: 'truststore_creds'
+    volumes:
+      - ./certificates/kafka.keystore.jks:/etc/kafka/secrets/kafka.keystore.jks:ro,z
+      - ./certificates/kafka.truststore.jks:/etc/kafka/secrets/kafka.truststore.jks:ro,z
+      - ./certificates/keystore_creds:/etc/kafka/secrets/keystore_creds:ro,z
+      - ./certificates/sslkey_creds:/etc/kafka/secrets/sslkey_creds:ro,z
+      - ./certificates/truststore_creds:/etc/kafka/secrets/truststore_creds:ro,z
+
+  book-service:
+    build: ./book-service
+    ports:
+      - "6060:6060"
+    restart: unless-stopped
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    volumes:
+      - ./certificates/kafka.keystore.jks:/etc/kafka/secrets/kafka.keystore.jks:ro,z
+      - ./certificates/kafka.truststore.jks:/etc/kafka/secrets/kafka.truststore.jks:ro,z
+      - ./certificates/keystore_creds:/etc/kafka/secrets/keystore_creds:ro,z
+      - ./certificates/truststore_creds:/etc/kafka/secrets/truststore_creds:ro,z
+
+  account-service:
+    build: ./account-service
+    ports:
+      - "6061:6061"
+    restart: unless-stopped
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    volumes:
+      - ./certificates/kafka.keystore.jks:/etc/kafka/secrets/kafka.keystore.jks:ro,z
+      - ./certificates/kafka.truststore.jks:/etc/kafka/secrets/kafka.truststore.jks:ro,z
+      - ./certificates/keystore_creds:/etc/kafka/secrets/keystore_creds:ro,z
+      - ./certificates/truststore_creds:/etc/kafka/secrets/truststore_creds:ro,z
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "6062:6062"
+    restart: unless-stopped
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    volumes:
+      - ./certificates/kafka.keystore.jks:/etc/kafka/secrets/kafka.keystore.jks:ro,z
+      - ./certificates/kafka.truststore.jks:/etc/kafka/secrets/kafka.truststore.jks:ro,z
+      - ./certificates/keystore_creds:/etc/kafka/secrets/keystore_creds:ro,z
+      - ./certificates/truststore_creds:/etc/kafka/secrets/truststore_creds:ro,z
