@@ -44,7 +44,7 @@ curl --location --request POST 'localhost:6060/book/buy' --header 'Content-Type:
 
 ### How to generate certificates
 1. Download [script](https://github.com/confluentinc/confluent-platform-security-tools/blob/master/kafka-generate-ssl.sh).
-2. Run it and type `kafka` in those fields: `Common Name`, ` first and last name`. Also use the same password every time when asked.
-3. Replace geneerated `kafka.keystore` and `kafka.trustore` with the old ones in `certificates`.
+2. Run it and type `kafka` in those fields: `Common Name`, ` first and last name`. Also, use the same password every time when asked.
+3. Replace generated `kafka.keystore` and `kafka.trustore` with the old ones in `certificates`.
 4. Change password in `certificates/trustore_creds`, `certificates/keystore_creds`, `certificates/sslkey_creds`
 
